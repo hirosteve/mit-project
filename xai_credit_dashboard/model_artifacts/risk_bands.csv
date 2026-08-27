@@ -1,0 +1,5 @@
+Band,Probability range,Accounts,Share %,Actual bad %,Allocation
+A — Standard,0.000 – 0.060,1031,13.8,1.45,100%
+B — Conditional,0.060 – 0.120,637,8.5,5.02,70%
+C — Referred,0.120 – 0.300,1908,25.5,7.6,40%
+D — Declined,0.300 – 1.000,3906,52.2,16.36,0%

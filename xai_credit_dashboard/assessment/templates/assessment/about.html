@@ -1,0 +1,57 @@
+{% extends "assessment/base.html" %}
+{% block title %}Model provenance{% endblock %}
+{% block content %}
+
+<div class="lede">
+  <h1>Model provenance</h1>
+  <p>How this model was built, what it uses, and what it deliberately does not.</p>
+</div>
+
+<div class="grid">
+  <div class="panel">
+    <div class="panel-head"><span>Specification</span></div>
+    <div class="panel-body" style="padding:8px 20px 14px">
+      <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-45)">Algorithm</td>
+            <td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono)">{{ metadata.selected_model }}</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-45)">Training records</td>
+            <td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono)">{{ metadata.training_observations }}</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-45)">Bad-loan base rate</td>
+            <td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono)">{{ metadata.training_bad_rate_pct }}%</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-45)">Validation F1</td>
+            <td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono)">{{ metadata.validation_f1 }}</td></tr>
+        <tr><td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);color:var(--ink-45)">Validation ROC-AUC</td>
+            <td style="padding:7px 0;border-bottom:1px solid var(--rule-soft);text-align:right;font-family:var(--mono)">{{ metadata.validation_roc_auc }}</td></tr>
+        <tr><td style="padding:7px 0;color:var(--ink-45)">Random seed</td>
+            <td style="padding:7px 0;text-align:right;font-family:var(--mono)">{{ metadata.random_state }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><span>Design decisions</span></div>
+    <div class="panel-body" style="font-size:13.5px;line-height:1.62">
+      <p style="margin:0 0 14px"><b>Protected attributes excluded.</b> Gender and marital
+      status were removed from the feature space and retained only for fairness auditing.
+      The audit tested disparate impact, recall parity, and whether either attribute could
+      be reconstructed from the remaining features.</p>
+
+      <p style="margin:0 0 14px"><b>Conduct variable excluded.</b> Whether penalty
+      compensation had been charged was withheld, because compensation is levied as a
+      consequence of missed repayment rather than being available when a facility is
+      assessed. Including it raised measured performance but would not be available in use.</p>
+
+      <p style="margin:0"><b>What the model does not use.</b> No weather, rainfall, crop
+      yield or agronomic data. Rural context enters only through the client settlement
+      classification. Claims about environmental risk are outside what this model measures.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">
+  Trained and evaluated in the accompanying analysis notebook. Preprocessing, resampling
+  and scaling were fitted inside cross-validation folds so that no validation data
+  influenced model fitting.
+</div>
+
+{% endblock %}

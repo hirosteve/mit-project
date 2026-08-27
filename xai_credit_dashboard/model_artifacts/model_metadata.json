@@ -1,0 +1,37 @@
+{
+  "selected_model": "XGBoost",
+  "hyperparameters": {
+    "clf__learning_rate": "0.3",
+    "clf__max_depth": "6"
+  },
+  "feature_configuration": "origination-time (COMPENSATION_CHARGED excluded)",
+  "numerical_features": [
+    "LOG_INVESTMENT_TOTAL",
+    "LOG_ACCCURRENTBALANCE",
+    "LOG_INSTALL_SIZE",
+    "LOG_DUE_PAYMENT",
+    "DEBT_SERVICE_RATIO",
+    "ARREARS_INTENSITY",
+    "BALANCE_UTILISATION"
+  ],
+  "categorical_features": [
+    "CLIENT_TYPE",
+    "REPAY_MODE"
+  ],
+  "excluded_protected_attributes": [
+    "INF_GENDER",
+    "INF_MARITAL_STATUS"
+  ],
+  "excluded_leakage_candidate": [
+    "COMPENSATION_CHARGED"
+  ],
+  "target_encoding": {
+    "G": 0,
+    "B": 1
+  },
+  "training_observations": 29926,
+  "training_bad_rate_pct": 11.1,
+  "random_state": 42,
+  "validation_f1": 0.318,
+  "validation_roc_auc": 0.7242
+}

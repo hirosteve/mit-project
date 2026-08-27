@@ -1,0 +1,46 @@
+{
+  "threshold": 0.12,
+  "cost_assumptions": {
+    "LGD": 0.6,
+    "opportunity_cost": 0.03,
+    "ratio": 20.0
+  },
+  "bands": [
+    {
+      "band": "A \u2014 Standard",
+      "lo": 0.0,
+      "hi": 0.06,
+      "factor": 1.0,
+      "action": "Approve at requested exposure"
+    },
+    {
+      "band": "B \u2014 Conditional",
+      "lo": 0.06,
+      "hi": 0.12,
+      "factor": 0.7,
+      "action": "Approve at reduced exposure; require guarantor or revised instalment plan"
+    },
+    {
+      "band": "C \u2014 Referred",
+      "lo": 0.12,
+      "hi": 0.3,
+      "factor": 0.4,
+      "action": "Refer for manual credit assessment; provisional cap applies"
+    },
+    {
+      "band": "D \u2014 Declined",
+      "lo": 0.3,
+      "hi": 1.01,
+      "factor": 0.0,
+      "action": "Decline; refer to advisory support or group-lending scheme"
+    }
+  ],
+  "portfolio_outcome": {
+    "T": 0.12,
+    "Access %": 47.8,
+    "Capital deployed %": 46.6,
+    "Expected loss rate %": 1.91,
+    "Good borrowers denied %": 49.1
+  },
+  "baseline_loss_rate_pct": 6.78
+}

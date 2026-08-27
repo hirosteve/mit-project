@@ -1,0 +1,153 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Credit Risk Assessment{% endblock %}</title>
+<style>
+:root{
+  --ink:#1A2332; --ink-70:#4A5568; --ink-45:#7A8699;
+  --paper:#FDFCFA; --panel:#FFFFFF; --rule:#DDE3EA; --rule-soft:#EDF1F5;
+  --blue:#2D5D8A; --blue-soft:#EAF1F8;
+  --low:#2D6A4F; --moderate:#3E6E8E; --elevated:#B57A1F; --high:#A4243B;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+     font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+.masthead{border-bottom:1px solid var(--rule);background:var(--panel)}
+.masthead-inner{max-width:1140px;margin:0 auto;padding:18px 28px;
+     display:flex;align-items:baseline;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.wordmark{font-family:var(--mono);font-size:13px;letter-spacing:.14em;
+     text-transform:uppercase;font-weight:600}
+.wordmark span{color:var(--blue)}
+.masthead nav{font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+     text-transform:uppercase;display:flex;gap:22px}
+.masthead nav a{color:var(--ink-45)}
+
+.wrap{max-width:1140px;margin:0 auto;padding:34px 28px 70px}
+.lede{max-width:640px;margin-bottom:30px}
+.lede h1{font-size:27px;line-height:1.22;font-weight:600;letter-spacing:-.018em;margin:0 0 9px}
+.lede p{color:var(--ink-70);margin:0;font-size:14.5px}
+
+.grid{display:grid;grid-template-columns:minmax(300px,378px) 1fr;gap:26px;align-items:start}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:3px}
+.panel-head{padding:13px 20px;border-bottom:1px solid var(--rule);
+     font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+     text-transform:uppercase;color:var(--ink-45);display:flex;
+     justify-content:space-between;align-items:center;gap:12px}
+.panel-body{padding:20px}
+
+.field{margin-bottom:16px}
+.field:last-of-type{margin-bottom:0}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px;letter-spacing:.005em}
+.field input,.field select{width:100%;padding:9px 11px;border:1px solid var(--rule);
+     border-radius:2px;font-size:14px;font-family:var(--mono);background:var(--paper);color:var(--ink)}
+.field select{font-family:var(--sans)}
+.field input:focus,.field select:focus{border-color:var(--blue);background:#fff;outline:none;
+     box-shadow:0 0 0 3px var(--blue-soft)}
+.field .hint{font-size:11.5px;color:var(--ink-45);margin-top:4px}
+.field .err{font-size:11.5px;color:var(--high);margin-top:4px;font-weight:500}
+
+.btn{width:100%;margin-top:20px;padding:11px;background:var(--ink);color:#fff;border:none;
+     border-radius:2px;font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;
+     text-transform:uppercase;cursor:pointer;font-weight:500}
+.btn:hover{background:var(--blue)}
+
+.excluded{margin-top:18px;padding-top:15px;border-top:1px dashed var(--rule);
+     font-size:11.5px;color:var(--ink-45);line-height:1.5}
+.excluded strong{color:var(--ink-70);font-weight:600}
+
+/* ---- verdict ---- */
+.verdict{display:flex;align-items:flex-start;gap:26px;padding:24px 26px;
+     border-bottom:1px solid var(--rule);flex-wrap:wrap}
+.score{font-family:var(--mono);font-size:52px;line-height:.94;font-weight:600;letter-spacing:-.035em}
+.score sup{font-size:19px;font-weight:400;margin-left:2px;vertical-align:super;letter-spacing:0}
+.verdict-meta{padding-top:5px}
+.band{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+     font-weight:600;padding:3px 9px;border-radius:2px;display:inline-block}
+.verdict-note{font-size:13px;color:var(--ink-70);margin-top:9px;max-width:390px}
+.low .score,.low .band{color:var(--low)} .low .band{background:#E8F2EC}
+.moderate .score,.moderate .band{color:var(--moderate)} .moderate .band{background:#E9F0F5}
+.elevated .score,.elevated .band{color:var(--elevated)} .elevated .band{background:#FAF2E2}
+.high .score,.high .band{color:var(--high)} .high .band{background:#F8EAED}
+
+/* ---- allocation ---- */
+.allocation{padding:18px 26px;border-bottom:1px solid var(--rule);background:var(--rule-soft)}
+.alloc-head{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+     color:var(--ink-45);margin-bottom:12px;font-weight:600}
+.alloc-figures{display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap}
+.alloc-block{min-width:96px}
+.alloc-label{font-size:11px;color:var(--ink-45);margin-bottom:3px}
+.alloc-amt{font-family:var(--mono);font-size:19px;font-weight:600;letter-spacing:-.02em}
+.alloc-amt.muted{color:var(--ink-45);font-weight:400}
+.alloc-arrow{font-size:17px;color:var(--ink-45);padding-bottom:4px}
+.alloc-bar{height:7px;background:var(--rule);border-radius:1px;margin-top:14px;overflow:hidden}
+.alloc-fill{height:100%;border-radius:1px}
+.low .alloc-fill{background:var(--low)} .moderate .alloc-fill{background:var(--moderate)}
+.elevated .alloc-fill{background:var(--elevated)} .high .alloc-fill{background:var(--high)}
+.alloc-action{margin-top:11px;font-size:12.5px;color:var(--ink-70);line-height:1.5}
+
+/* ---- ledger: the signature element ---- */
+.ledger{padding:6px 0 4px}
+.ledger-row{display:grid;grid-template-columns:158px 1fr 62px;align-items:center;
+     gap:14px;padding:7px 26px}
+.ledger-row:hover{background:var(--rule-soft)}
+.ledger-label{font-size:12.5px;text-align:right;color:var(--ink-70);
+     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ledger-track{position:relative;height:19px}
+.ledger-track::before{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;
+     width:1px;background:var(--rule)}
+.bar{position:absolute;top:3px;height:13px;border-radius:1px}
+.bar.up{left:50%;background:var(--high);opacity:.82}
+.bar.down{right:50%;background:var(--low);opacity:.82}
+.ledger-val{font-family:var(--mono);font-size:11.5px;text-align:right;color:var(--ink-45)}
+.ledger-axis{display:grid;grid-template-columns:158px 1fr 62px;gap:14px;padding:9px 26px 0;
+     font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;
+     color:var(--ink-45);border-top:1px solid var(--rule-soft);margin-top:5px}
+.axis-ends{display:flex;justify-content:space-between}
+
+.readout{padding:19px 26px;border-top:1px solid var(--rule);font-size:13.5px;line-height:1.62}
+.readout h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+     color:var(--ink-45);margin:0 0 8px;font-weight:600}
+.readout ul{margin:0;padding-left:17px}
+.readout li{margin-bottom:3px}
+.readout li b{font-weight:600}
+
+.empty{padding:56px 30px;text-align:center;color:var(--ink-45)}
+.empty-mark{font-family:var(--mono);font-size:34px;color:var(--rule);margin-bottom:12px}
+.empty p{font-size:13.5px;margin:0 auto;max-width:310px}
+
+.alert{padding:13px 16px;background:#F8EAED;border:1px solid #E4C3C9;border-radius:2px;
+     color:var(--high);font-size:13px;margin-bottom:20px}
+
+.factsheet{margin-top:26px}
+.factsheet table{width:100%;border-collapse:collapse;font-size:12.5px}
+.factsheet td{padding:7px 0;border-bottom:1px solid var(--rule-soft)}
+.factsheet td:first-child{color:var(--ink-45);width:52%}
+.factsheet td:last-child{font-family:var(--mono);text-align:right;font-size:12px}
+
+.footnote{margin-top:34px;padding-top:17px;border-top:1px solid var(--rule);
+     font-size:11.5px;color:var(--ink-45);line-height:1.62;max-width:760px}
+</style>
+</head>
+<body>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div class="wordmark">Rural Credit <span>/ XAI</span></div>
+    <nav>
+      <a href="/">Assess</a>
+      <a href="/about/">Model</a>
+    </nav>
+  </div>
+</header>
+<div class="wrap">{% block content %}{% endblock %}</div>
+</body>
+</html>

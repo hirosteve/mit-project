@@ -1,0 +1,148 @@
+{% extends "assessment/base.html" %}
+{% block content %}
+
+<div class="lede">
+  <h1>Loan quality assessment</h1>
+  <p>Enter the facility details to obtain a default risk classification and the
+     specific factors behind it. Every prediction is accompanied by its explanation.</p>
+</div>
+
+{% if error %}<div class="alert">{{ error }}</div>{% endif %}
+
+<div class="grid">
+
+  <form method="post" class="panel">
+    {% csrf_token %}
+    <div class="panel-head"><span>Application</span></div>
+    <div class="panel-body">
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% if field.help_text %}<div class="hint">{{ field.help_text }}</div>{% endif %}
+          {% for e in field.errors %}<div class="err">{{ e }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn">Assess application</button>
+
+      <div class="excluded">
+        <strong>Not collected:</strong> gender and marital status. Both were excluded
+        from the model on fair-lending grounds and are not used in any prediction.
+      </div>
+    </div>
+  </form>
+
+  <div class="panel {% if result %}{{ result.band_class }}{% endif %}">
+
+    {% if result %}
+      <div class="panel-head">
+        <span>Assessment</span>
+        <span>{{ result.model_name }}</span>
+      </div>
+
+      <div class="verdict">
+        <div class="score">{{ result.percentage }}<sup>%</sup></div>
+        <div class="verdict-meta">
+          <span class="band">{{ result.band }}</span>
+          <div class="verdict-note">
+            Estimated probability of default. Decision threshold {{ result.threshold }},
+            derived from a loss-given-default to opportunity-cost ratio of
+            {{ result.cost_assumptions.ratio }} to 1.
+          </div>
+        </div>
+      </div>
+
+      <div class="allocation">
+        <div class="alloc-head">Allocation recommendation</div>
+        <div class="alloc-figures">
+          <div class="alloc-block">
+            <div class="alloc-label">Requested</div>
+            <div class="alloc-amt muted">{{ result.requested_amount|floatformat:0 }}</div>
+          </div>
+          <div class="alloc-arrow">&#8594;</div>
+          <div class="alloc-block">
+            <div class="alloc-label">Recommended</div>
+            <div class="alloc-amt">{{ result.recommended_amount|floatformat:0 }}</div>
+          </div>
+          <div class="alloc-block">
+            <div class="alloc-label">Of request</div>
+            <div class="alloc-amt">{{ result.allocation_pct }}%</div>
+          </div>
+        </div>
+        <div class="alloc-bar">
+          <div class="alloc-fill" style="width:{{ result.allocation_pct }}%"></div>
+        </div>
+        <div class="alloc-action">{{ result.action }}</div>
+      </div>
+
+      <div class="panel-head" style="border-top:1px solid var(--rule)">
+        <span>Contribution ledger</span>
+        <span>SHAP</span>
+      </div>
+
+      <div class="ledger">
+        {% for c in result.contributions %}
+        <div class="ledger-row">
+          <div class="ledger-label" title="{{ c.feature }}">{{ c.feature }}</div>
+          <div class="ledger-track">
+            {% if c.value > 0 %}
+              <div class="bar up" style="width:{{ c.width }}%;max-width:50%"></div>
+            {% else %}
+              <div class="bar down" style="width:{{ c.width }}%;max-width:50%"></div>
+            {% endif %}
+          </div>
+          <div class="ledger-val">{{ c.value }}</div>
+        </div>
+        {% endfor %}
+        <div class="ledger-axis">
+          <div></div>
+          <div class="axis-ends"><span>&#8592; reduces risk</span><span>increases risk &#8594;</span></div>
+          <div></div>
+        </div>
+      </div>
+
+      <div class="readout">
+        <h4>What drove this result</h4>
+        <ul>
+          {% for c in result.increasing %}
+            <li><b>{{ c.feature }}</b> increased the risk estimate.</li>
+          {% endfor %}
+          {% for c in result.reducing %}
+            <li><b>{{ c.feature }}</b> reduced the risk estimate.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    {% else %}
+      <div class="panel-head"><span>Assessment</span></div>
+      <div class="empty">
+        <div class="empty-mark">&#8212;</div>
+        <p>Submit an application to see its risk classification and the factors behind it.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% if global_importance %}
+<div class="factsheet panel" style="max-width:520px">
+  <div class="panel-head"><span>Portfolio drivers</span><span>Global SHAP</span></div>
+  <div class="panel-body" style="padding:8px 20px 14px">
+    <table>
+      {% for g in global_importance %}
+      <tr><td>{{ g.feature }}</td><td>{{ g.share }}%</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endif %}
+
+<div class="footnote">
+  Prototype decision-support tool. Risk classifications are indicative and are intended
+  to support, not replace, a credit officer's judgement. The underlying model was trained
+  on historical loan records and evaluated at an F1 of {{ metadata.validation_f1 }} and
+  ROC-AUC of {{ metadata.validation_roc_auc }} on held-out data; it identifies roughly half
+  of loans that subsequently go bad. It is not a loan origination decision system.
+</div>
+
+{% endblock %}
